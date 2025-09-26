@@ -60,7 +60,7 @@ int main(){
             if(dist_str) {
                 float distance = atof(dist_str +9);
                 char query[128];
-                snprintf(query, sizeof(query),"INSERT INTO distance_log(distance) VALUES(%.2f);"), distance);
+                snprintf(query, sizeof(query),"INSERT INTO distance_log(distance) VALUES(%.2f);", distance);
                 if(sqlite3_exec(db, query,0,0,&err_msg) != SQLITE_OK) {
                     fprintf(stderr, "SQL insert error: %s\n", err_msg);
                     sqlite3_free(err_msg);
