@@ -65,20 +65,26 @@ int main() {
                     printf("RAW: [%s]\n", line);
 
                     if (strncmp(line, "Distance:", 9) == 0) {
-                        float distance = atof(line + 9);
+                        float distance = 0.0f;
 
-                        char query[128];
-                        snprintf(query, sizeof(query),
-                                 "INSERT INTO distance_log(distance) VALUES(%.2f);",
-                                 distance);
+                        // Safely parse after "Distance:"
+                        if (sscanf(line + 9, "%f", &distance) == 1) {
+                            char query[128];
+                            snprintf(query, sizeof(query),
+                                    "INSERT INTO distance_log(distance) VALUES(%.2f);",
+                                    distance);
 
-                        if (sqlite3_exec(db, query, 0, 0, &err_msg) != SQLITE_OK) {
-                            fprintf(stderr, "SQL insert error: %s\n", err_msg);
-                            sqlite3_free(err_msg);
+                            if (sqlite3_exec(db, query, 0, 0, &err_msg) != SQLITE_OK) {
+                                fprintf(stderr, "SQL insert error: %s\n", err_msg);
+                                sqlite3_free(err_msg);
+                            } else {
+                                printf("Logged: %.2f cm\n", distance);
+                            }
                         } else {
-                            printf("Logged: %.2f cm\n", distance);
+                            fprintf(stderr, "Parse error: [%s]\n", line);
                         }
                     }
+
 
                     pos = 0;  // reset line buffer
 
