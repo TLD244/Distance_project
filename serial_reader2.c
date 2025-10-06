@@ -96,7 +96,7 @@ int main() {
             }
         }
 
-        usleep(200000); // 0.2s pause
+        //usleep(200000); // 0.2s pause
     }
 
     return 0;
