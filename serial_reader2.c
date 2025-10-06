@@ -62,7 +62,7 @@ int main() {
 
                 if (c == '\n') {
                     line[pos] = '\0';   // terminate string
-                    //printf("RAW: [%s]\n", line);
+                    printf("RAW: [%s]\n", line);
 
                     if (strncmp(line, "Distance:", 9) == 0) {
                         float distance = 0.0f;
