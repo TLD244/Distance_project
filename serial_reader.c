@@ -55,8 +55,8 @@ int main(){
     while(1) {
         int n = read(fd, buf, sizeof(buf)-1);
         if (n > 0) {
-            buf[n] = '\0'; // String termination
-           // printf("RAW: [%s]\n", buf);  // 👈 show exactly what Arduino sends
+            buf[n] = '\n'; // String termination
+            printf("RAW: [%s] \n", buf);  // 👈 show exactly what Arduino sends
             char *dist_str = strstr(buf, "distance=");
             if(dist_str) {
                 float distance = atof(dist_str +9);
