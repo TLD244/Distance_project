@@ -55,7 +55,7 @@ int main(){
     while(1) {
         int n = read(fd, buf, sizeof(buf)-1);
         if (n > 0) {
-            buf[n] = '\n';
+            buf[n] = '\0'; // String termination
             char *dist_str = strstr(buf, "distance=");
             if(dist_str) {
                 float distance = atof(dist_str +9);
