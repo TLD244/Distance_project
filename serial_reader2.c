@@ -18,10 +18,10 @@ int main() {
     sqlite3 *db;
     char *err_msg = 0;
 
-    //Open serial port
+    // Open serial port
     fd = open(SERIAL_PORT, O_RDONLY | O_NOCTTY);
-    if(fd < 0) { perror("Serial open"); return 1; }
-    
+    if (fd < 0) { perror("Serial open"); return 1; }
+
     // Configure port for serial protocol
     tcgetattr(fd, &tty);
     cfsetospeed(&tty, B9600);
@@ -34,20 +34,20 @@ int main() {
     tcsetattr(fd, TCSANOW, &tty);
 
     // Open SQLite DB
-    if(sqlite3_open(DB_NAME, &db)) {
+    if (sqlite3_open(DB_NAME, &db)) {
         fprintf(stderr, "Can't open DB : %s\n", sqlite3_errmsg(db));
         return 1;
     }
-    
+
     // Create table if not exists
     const char *sql = "CREATE TABLE IF NOT EXISTS distance_log("
                       "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                       "timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,"
                       "distance REAL);";
 
-    if(sqlite3_exec(db, sql, 0, 0, &err_msg) != SQLITE_OK) {
-        fprintf(stderr,"SQL error: %s\n", err_msg);
-        sqlite3_free(err_msg); 
+    if (sqlite3_exec(db, sql, 0, 0, &err_msg) != SQLITE_OK) {
+        fprintf(stderr, "SQL error: %s\n", err_msg);
+        sqlite3_free(err_msg);
     }
 
     printf("Logging data... Press Ctrl+C to stop.\n");
@@ -64,27 +64,31 @@ int main() {
                     line[pos] = '\0';   // terminate string
                     printf("RAW: [%s]\n", line);
 
-                    if (strncmp(line, "Distance:", 9) == 0) {
-                        float distance = 0.0f;
+                    // ---- Improved parsing (no "strncmp") ----
+                    char *p = strstr(line, "Distance");
+                    if (p) {
+                        // Move forward until reaching a digit or '-' sign
+                        while (*p && (*p < '0' || *p > '9') && *p != '-') p++;
 
-                        // Safely parse after "Distance:"
-                        if (sscanf(line + 9, "%f", &distance) == 1) {
+                        if (*p) {
+                            float distance = atof(p);
+                            printf("Parsed distance = %.2f\n", distance);
+
+                            // Build SQL query
                             char query[128];
                             snprintf(query, sizeof(query),
                                     "INSERT INTO distance_log(distance) VALUES(%.2f);",
                                     distance);
 
+                            // Execute insert
                             if (sqlite3_exec(db, query, 0, 0, &err_msg) != SQLITE_OK) {
                                 fprintf(stderr, "SQL insert error: %s\n", err_msg);
                                 sqlite3_free(err_msg);
                             } else {
                                 printf("Logged: %.2f cm\n", distance);
                             }
-                        } else {
-                            fprintf(stderr, "Parse error: [%s]\n", line);
                         }
                     }
-
 
                     pos = 0;  // reset line buffer
 
@@ -96,7 +100,7 @@ int main() {
             }
         }
 
-        //usleep(200000); // 0.2s pause
+        //usleep(200000); // optional pause
     }
 
     return 0;
