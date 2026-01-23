@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Distance Monitor</title>
+    <style>
+        body { font-family: Arial; background: #f4f4f4; }
+        table { border-collapse: collapse; width: 60%; margin: auto; }
+        th, td { padding: 10px; border: 1px solid #333; text-align: center; }
+        th { background: #333; color: white; }
+        h1 { text-align: center; }
+    </style>
+</head>
+<body>
+
+<h1>Distance Measurements</h1>
+
+<table>
+    <tr>
+        <th>Timestamp</th>
+        <th>Distance (cm)</th>
+    </tr>
+
+    {% for row in data %}
+    <tr>
+        <td>{{ row[0] }}</td>
+        <td>{{ row[1] }}</td>
+    </tr>
+    {% endfor %}
+
+</table>
+
+</body>
+</html>
